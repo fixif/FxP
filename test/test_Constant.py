@@ -27,19 +27,19 @@ def test_construct():
 	"""
 	c = Constant(value=127, wl=8, signed=False)
 	assert(c.FPF.wml() == (8, 6, -1))
-	assert(c.integer == 254)
+	assert(c.mantissa == 254)
 
 	c = Constant(value=127, wl=8)
 	assert(c.FPF.wml() == (8, 7, 0))
-	assert(c.integer == 127)
+	assert(c.mantissa == 127)
 	
 	c = Constant(value=-127, wl=8, signed=True)
 	assert(c.FPF.wml() == (8, 7, 0))
-	assert(c.integer == -127)
+	assert(c.mantissa == -127)
 	
 	c = Constant(value=0.36567, wl=8)
 	assert(c.FPF.wml() == (8, -1, -8))
-	assert(c.integer == 94)
+	assert(c.mantissa == 94)
 	assert(c.approx == 94*2**-8)
 	
 	with pytest.raises(ValueError):
@@ -47,28 +47,28 @@ def test_construct():
 
 	c = Constant(value=127.78, wl=8, signed=False)
 	assert(c.FPF.wml() == (8, 7, 0))
-	assert(c.integer == 128)
+	assert(c.mantissa == 128)
 	
 	# particular cases
 	c = Constant(value=127.78, wl=8, signed=False)
 	assert(c.FPF.wml() == (8, 7, 0))
-	assert(c.integer == 128)
+	assert(c.mantissa == 128)
 	c = Constant(value=-128.1, wl=8, signed=True)
 	assert(c.FPF.wml() == (8, 7, 0))
-	assert(c.integer == -128)
+	assert(c.mantissa == -128)
 	c = Constant(value=127.7, wl=8, signed=True)
 	assert(c.FPF.wml() == (8, 8, 1))
-	assert(c.integer == 64)
+	assert(c.mantissa == 64)
 	
 	c = Constant(value=-64.25, wl=8, signed=True)
 	assert(c.FPF.wml() == (8, 6, -1))
-	assert(c.integer == -128)
+	assert(c.mantissa == -128)
 	c = Constant(value=-64.3, wl=8, signed=True)
 	assert(c.FPF.wml() == (8, 6, -1))
-	assert(c.integer == -128)
+	assert(c.mantissa == -128)
 	c = Constant(value=-64.5, wl=8, signed=True)
 	assert(c.FPF.wml() == (8, 7, 0))
-	assert(c.integer == -65)
+	assert(c.mantissa == -65)
 	
 	# construct with a given FPF
 	with pytest.raises(ValueError):
