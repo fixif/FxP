@@ -29,7 +29,7 @@ def test_construct():
 	assert(c.FPF.wml() == (8, 6, -1))
 	assert(c.mantissa == 254)
 
-	c = Constant(value=127, wl=8)
+	c = Constant(value=127, wl=8, signed=True)
 	assert(c.FPF.wml() == (8, 7, 0))
 	assert(c.mantissa == 127)
 	
@@ -37,7 +37,7 @@ def test_construct():
 	assert(c.FPF.wml() == (8, 7, 0))
 	assert(c.mantissa == -127)
 	
-	c = Constant(value=0.36567, wl=8)
+	c = Constant(value=0.36567, wl=8, signed=True)
 	assert(c.FPF.wml() == (8, -1, -8))
 	assert(c.mantissa == 94)
 	assert(c.approx == 94*2**-8)
