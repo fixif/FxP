@@ -1,0 +1,1 @@
+from fipogen.FxP import Constant, FPF
