@@ -14,7 +14,7 @@ __maintainer__ = "Thibault Hilaire"
 __email__ = "thibault.hilaire@lip6.fr"
 __status__ = "Beta"
 
-from fipogen.FxP import FPF
+from fipogen.FxP.FPF import FPF
 
 from mpmath import mpf, workprec, log, floor, ceil
 
