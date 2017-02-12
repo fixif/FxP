@@ -20,12 +20,12 @@ from mpmath import mpf, workprec, log, floor, ceil
 
 
 class Constant(object):
-	"""Constant class to store (non-null) constant coefficient in fixed-point arithmetic
+	"""Constant class to store a (non-null) constant in fixed-point arithmetic
 	
 	Attributes:
 		_value: real value of the constant, given at construction (in fact, it could be a float, a mpf object or even a string)
 		_FPF: Fixed-Point Format used to represent the constant
-		_mantissa: (Long) mantissa of the constant (integer used to approximate the constant in the given FPF)
+		_mantissa:  mantissa of the constant (integer used to approximate the constant in the given FPF)
 
 	mpmath package is used to convert the value ("0.1" for example) and do the log2 computations
 	"""
@@ -46,13 +46,13 @@ class Constant(object):
 			wl = fpf.wl
 			signed = fpf.signed
 		elif not(wl is not None and signed is not None and fpf is None):
-			raise ValueError("Bad combination of arguments")
-		if wl <= 1:
-			raise ValueError("The word-length should be at least equal to 2")
+			raise ValueError("Constant: Bad combination of arguments")
+		if wl < 2:
+			raise ValueError("Constant: The word-length should be at least equal to 2")
 
 		# store the exact value given and it's approximated value with 2*wl bits in mpmath
 		self._value = value
-		mpvalue = mpf(value, prec=max(53, 2*wl))       # TODO: prec = wl+1 should be enough ??
+		mpvalue = mpf(value, prec=wl+1)
 
 		# check for non-sense values
 		if signed is False and mpvalue < 0:
@@ -60,18 +60,18 @@ class Constant(object):
 
 		# treat null constant
 		if mpvalue == 0:
-			self._mantissa = 0L
+			self._mantissa = 0
 			self._value = 0
-			self._fpf = FPF(wl=wl, lsb=0)        # arbitrary choose lsb=0
+			self._FPF = FPF(wl=wl, lsb=0)        # arbitrary choose lsb=0
 			# raise ValueError("zero cannot be stored in a Constant !!")
 			return
 
-		with workprec(max(53, 2*wl)):       # with at least 53 bits, or 2*wl bits
+		with workprec(wl):       # with wl+1 bits
 
 			# compute MSB
 			if fpf:
 				msb = fpf.msb
-			elif mpvalue>0:
+			elif mpvalue > 0:
 				msb = int(floor(log(mpvalue, 2))) + (1 if signed else 0)
 			else:
 				msb = int(ceil(log(-mpvalue, 2)))
@@ -90,8 +90,7 @@ class Constant(object):
 				self._mantissa = -2 ** (wl - 1)
 
 		# check if the mantissa is valid when a fpf is given
-		if (not signed and not (0 <= self._mantissa < 2 ** wl)
-		    or (signed and not (-2 ** (wl - 1) <= self._mantissa < 2 ** (wl - 1)))):
+		if (not signed and not (0 <= self._mantissa < 2 ** wl) or (signed and not (-2 ** (wl - 1) <= self._mantissa < 2 ** (wl - 1)))):
 			raise ValueError("given FPF cannot represent value")
 		if self._mantissa == 0:
 			# TODO: add an option to return a null constant rather raise an exception

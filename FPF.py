@@ -20,12 +20,12 @@ __status__ = "Beta"
 
 
 
-
-
 import re
+from mpmath import workprec, ldexp, nint
 
-reobj_q = re.compile("^([su]?)Q([+-]?[0-9]+)\.([+-]?[0-9]+)$")		# Q-notation
-reobj_p = re.compile("^([su]?)\(([+-]?[0-9]+),([+-]?[0-9]+)\)$")		# parentheses-notation
+
+reobj_q = re.compile("^([su]?)Q([+-]?[0-9]+)\.([+-]?[0-9]+)$")		    # Q-notation
+reobj_p = re.compile("^([su]?)\(([+-]?[0-9]+),([+-]?[0-9]+)\)$")		# parenthesis-notation
 
 
 class FPF(object):
@@ -47,7 +47,7 @@ class FPF(object):
 			msb: most significant bit
 			lsb: least significant bit
 			signed (boolean): indicates if the format is signed (True) or unsigned (False)
-			formatStr (string): a string describing the FPF, with the Q-notation ("Q3.8", "uQ8.°3", ...) or the Parentheses-notation ("(3,-4)", "u(8,0"), ...)
+			formatStr (string): a string describing the FPF, with the Q-notation ("Q3.8", "uQ8.3", ...) or the Parentheses-notation ("(3,-4)", "u(8,0"), ...)
 		Returns:
 			a FPF object
 		Raises:
@@ -70,16 +70,16 @@ class FPF(object):
 				lsb = int(lsb)
 				wl = msb + 1 - lsb
 			else:
-				raise ValueError("'%s' is a Wrong format" % formatStr)
+				raise ValueError("Wrong FPF: '%s' is a wrong format" % formatStr)
 
 		# check if wl/msb/lsb are coherent
 		if wl < (2 if signed else 1) and (wl is not None):
-			raise ValueError("Wrong format")
+			raise ValueError("Wrong FPF: wordlength is incorrect (wl=%d)" % wl)
 		
-		# If wl, msb and lsb are all given, but with wl different than msb+1-lsb, then error
+		# When wl, msb and lsb are all given, check if wl ==  msb+1-lsb
 		elif wl is not None and msb is not None and lsb is not None:
-			if wl != msb + 1 - lsb:
-				raise ValueError("wl, msb and lsb should satisfy wl = msb +1 - lsb")
+			if wl != (msb + 1 - lsb):
+				raise ValueError("Wrong FPF: wl, msb and lsb should satisfy wl = msb +1 - lsb")
 		
 		# if only wl and msb are given, compute lsb
 		elif wl is not None and msb is not None and lsb is None:
@@ -94,7 +94,7 @@ class FPF(object):
 			wl = msb + 1 - lsb
 		
 		else:
-			raise ValueError('Not enough values are given (msb/lsb/wl')
+			raise ValueError('Wrong FPF: Not enough values are given (msb/lsb/wl')
 		
 		# store the values
 		self._wl = wl
@@ -117,7 +117,7 @@ class FPF(object):
 	
 	@property
 	def wl(self):
-		"""Returns the Wordl-Length"""
+		"""Returns the Wordl-length"""
 		return self._wl
 
 
@@ -131,26 +131,13 @@ class FPF(object):
 		"""Returns the tuple (wl,msb,lsb)"""
 		return self._wl, self._msb, self._lsb
 
-	
-	def shift(self, d):
-		"""Right shift of d bits and decrease msb without changing beta."""
-		# TODO: warning si le shift est negatif
-		self._msb += d
-		self._lsb += d
 
-		
-	def __copy__(self):
-		"""Returns a copy of a given FPF"""
-		# TODO: check if necessary
-		return FPF(wl=self._wl, msb=self._msb, signed=self._signed)	
-
-	
 	def __str__(self):
-		return self.ParenthesesNotation()
+		return self.ParenthesisNotation()
 
 		
 	def __repr__(self):
-		return "FPF ="+self.Qnotation()
+		return "FPF( wl=%d, msb=%d, lsb=%d, signed=%s)" % (self._wl, self._msb, self._lsb, self._signed)
 
 
 	def Qnotation(self):
@@ -158,19 +145,12 @@ class FPF(object):
 		return "%sQ%d.%d" % ('u'*(not self._signed), self._msb+1, -self._lsb)
 
 	
-	def ParenthesesNotation(self):
+	def ParenthesisNotation(self):
 		"""Returns the Parentheses-notation (ex. "(5,-6)") """
 		return "%s(%d,%d)" % ('u'*(not self._signed), self._msb, self._lsb)
 
 		
-	def approx(self, r):
-		"""Convert a real number in this FPF
-		Args:
-			r: real number to convert in this FPF
-		Returns:
-			an approximation of r, expressed in this FPF
-		"""
-		return 2**self._lsb*round(r*2**(-self._lsb))
+
 
 
 	def minmax(self):
@@ -178,13 +158,14 @@ class FPF(object):
 		Returns:
 			a tuple (min, max)
 		"""
-		if self._signed:
-			return -2**self._msb, 2**self._msb-2**self.lsb
-		else:
-			return 0, 2**(self._msb+1) - 2**self.lsb
+		with workprec(self._wl+1):      # wl bits is enough
+			if self._signed:
+				return -ldexp(1, self._msb), ldexp(1, self._msb) - ldexp(1, self.lsb)
+			else:
+				return 0, ldexp(1, self._msb+1) - ldexp(1, self.lsb)
 			
 	
-	def LaTeX(self, y_origin=0, colors=None,  binary_point=False, label='no', notation='mlsb', numeric=False, intfrac=False, power2=False, hatches=None, bits=None, x_shift=0, drawMissing=False, **other_params):
+	def LaTeX(self, y_origin=0, colors=None,  binary_point=False, label='no', notation='mlsb', numeric=False, intfrac=False, power2=False, hatches=None, bits=None, x_shift=0, drawMissing=False, **_):
 		"""Generate the LaTeX version of the FPF -> only a grid, composed of sign, integer and fractional bits
 		
 		Each square is 1x1 square, and the point (0,y_origin) correspond to the binary-point position
@@ -215,7 +196,7 @@ class FPF(object):
 		# prepare labels (numerical values, msb/lsb, integer/fractional parts, etc.)
 		# fpf_str: string describing the FPF used for the label
 		if numeric:
-			fpf_str = self.Qnotation() if notation == 'ifwl' else self.ParenthesesNotation()
+			fpf_str = self.Qnotation() if notation == 'ifwl' else self.ParenthesisNotation()
 		else:
 			if notation == 'ifwl':
 				fpf_str = 'u'*(not self._signed) + 'Qi.f'
@@ -252,9 +233,9 @@ class FPF(object):
 				str_msb = 'm'
 				str_msbm1 = 'm-1'
 		# Comment
-		st = "\t%FPF="+self.ParenthesesNotation()+"\n"
+		st = "\t%FPF="+self.ParenthesisNotation() + "\n"
 		# create a generator of the bits values (or a generator of a None list)
-		bits = (b for b in bits) if bits else (None for b in range(self._wl))
+		bits = (b for b in bits) if bits else (None for _ in range(self._wl))
 		# One rectangle per bit
 		firstSigned = self._signed		# True if self is signed. Still True if we do not enter in the 1st loop (when integer part<0)
 		for m in range(-self._msb-1, min(0, -self._lsb)):
@@ -309,3 +290,29 @@ class FPF(object):
 		
 		# Returns the full string
 		return st
+
+
+	# def shift(self, d):
+	# 	"""Right shift of d bits and decrease msb without changing beta."""
+	# 	# TODO: warning si le shift est negatif
+	# 	self._msb += d
+	# 	self._lsb += d
+
+
+	# def approx(self, r):
+	# 	"""Convert a "real" number in this FPF
+	# 	Args:
+	# 		r: number to convert in this FPF
+	# 	Returns:
+	# 		an approximation of r, expressed in this FPF
+	# 	"""
+	# 	# !FIXME: should we check that r is in [ -2^m - 2^(l-1), 2^m - 2^(l-1) ] for signed (and [ 0, 2^(m+1) - 2^(l-1) ] ??
+	# 	# nint is `round to nearest int` (ie round)
+	# 	return ldexp(1, self._lsb) * nint(ldexp(r, -self._lsb))
+
+
+
+	# def __copy__(self):
+	# 	"""Returns a copy of a given FPF"""
+	# 	# !TODO: check if necessary (there is a lot of copy in Adder, Multiplier, etc.)
+	# 	return FPF(wl=self._wl, msb=self._msb, signed=self._signed)

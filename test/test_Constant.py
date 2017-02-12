@@ -43,7 +43,7 @@ def test_construct():
 	assert(c.approx == 94*2**-8)
 	
 	with pytest.raises(ValueError):
-		c = Constant(value=-12, wl=12, signed=False)
+		Constant(value=-12, wl=12, signed=False)
 
 	c = Constant(value=127.78, wl=8, signed=False)
 	assert(c.FPF.wml() == (8, 7, 0))
@@ -72,5 +72,5 @@ def test_construct():
 	
 	# construct with a given FPF
 	with pytest.raises(ValueError):
-		c = Constant(value=258.54, wl=8, fpf=FPF(8, 7, 0))
+		Constant(value=258.54, wl=8, fpf=FPF(8, 7, 0))
 

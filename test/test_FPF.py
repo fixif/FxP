@@ -23,12 +23,19 @@ def test_construct():
 	"""Unit test for the FPF constructor"""
 	# construct FPF with less than 2 args
 	with pytest.raises(ValueError):
-		f = FPF(16)
+		FPF(16)
 	with pytest.raises(ValueError):
-		f = FPF(msb=12)
+		FPF(msb=12)
 	with pytest.raises(ValueError):
-		f = FPF(lsb=-6)		
-	
+		FPF(lsb=-6)
+
+	# construct with wrong wl
+	with pytest.raises(ValueError):
+		FPF(wl=-12, msb=6)
+	with pytest.raises(ValueError):
+		FPF(wl=1, msb=6, signed=True)
+
+
 	# construct FPF with only wl and (lsb or msb)
 	f = FPF(16, lsb=-12)
 	assert(f.wml() == (16, 3, -12))
@@ -37,7 +44,7 @@ def test_construct():
 	f = FPF(16, msb=0)
 	assert(f.wml() == (16, 0, -15))
 	with pytest.raises(ValueError):
-		f = FPF(16, 12, -5)
+		FPF(16, 12, -5)
 	
 	# construct form string
 	f = FPF(formatStr="Q8.12")
@@ -52,7 +59,7 @@ def test_construct():
 	assert(f.signed is False)
 	assert(f.wml() == (21, 8, -12))
 	with pytest.raises(ValueError):
-		f = FPF(formatStr="totoQ6.8")
+		FPF(formatStr="totoQ6.8")
 		
 	f = FPF(msb=7, lsb=0, signed=True)
 	assert(f.minmax() == (-128, 127))
@@ -60,20 +67,22 @@ def test_construct():
 	assert(f.minmax() == (0, 255))
 
 
-def test_shift():
-	""" Test the shifts
-	"""
-	# TODO: complete the tests
-	f = FPF(16, 3, -12)
-	f.shift(2)
-	assert(f.wml() == (16, 5, -10))
+# def test_shift():
+# 	""" Test the shifts
+# 	"""
+# 	# TODO: complete the tests
+# 	f = FPF(16, 3, -12)
+# 	f.shift(2)
+# 	assert(f.wml() == (16, 5, -10))
 
-	
-def test_approx():
-	"""Test the approx method"""
-	# TODO: do it over a large number of values
-	F = FPF(16, 8)
-	assert(F.approx(25) == 25)
-	assert(F.approx(25.001) == 25)
-	assert(F.approx(25.26789) == 25.265625)
+
+
+
+# def test_approx():
+# 	"""Test the approx method"""
+# 	# TODO: do it over a large number of values
+# 	F = FPF(msb=7, lsb=0)
+# 	assert(F.approx(25) == 25)
+# 	assert(F.approx(25.001) == 25)
+# 	assert(F.approx(25.26789) == 25)
 
