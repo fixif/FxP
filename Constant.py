@@ -16,7 +16,7 @@ __status__ = "Beta"
 
 from fipogen.FxP.FPF import FPF
 
-from mpmath import mpf, workprec, log, floor, ceil
+from mpmath import mpf, workprec, log, floor, ceil, ldexp, frexp
 
 
 class Constant(object):
@@ -30,7 +30,7 @@ class Constant(object):
 	mpmath package is used to convert the value ("0.1" for example) and do the log2 computations
 	"""
 
-	def __init__(self, value, wl=None, signed=None, fpf=None):
+	def __init__(self, value, wl=None, signed=None, fpf=None, method='float'):
 		"""Constructs a constant object, from a real value (something that mpmath can handle, so a float or a string).
 		 It could be build with wl bits (and signedness) OR (exclusive) with the given fpf
 		Parameters:
@@ -38,6 +38,11 @@ class Constant(object):
 		- wl: (positive integer) word-length
 		- signed: (boolean) True if signed fixed-point arithmetic is used, False if unsigned arithmetic
 		- fpf: (FPF) Fixed-Point Format
+		- method: (string) should be
+				'float' (default) for using the mantissa from floating-point conversion (using mpmath if it's a string)
+				'Benoit' for using Benoit's method (see "Reliable Implementation of Linear Filters with Fixed-Point Arithmetic", Hilaire and Lopez, 2013)
+				'log' using the complete logarithm-based formula
+				-> Of course, the 3 methods returns the same results
 		Raises:
 			ValueError if the parameters' values are not coherent
 		"""
@@ -52,7 +57,7 @@ class Constant(object):
 
 		# store the exact value given and it's approximated value with 2*wl bits in mpmath
 		self._value = value
-		mpvalue = mpf(value, prec=wl+1)
+		mpvalue = mpf(value, prec=2*wl)     # !TODO: wl+1 bits should be enough
 
 		# check for non-sense values
 		if signed is False and mpvalue < 0:
@@ -66,28 +71,51 @@ class Constant(object):
 			# raise ValueError("zero cannot be stored in a Constant !!")
 			return
 
-		with workprec(wl):       # with wl+1 bits
+		if method == 'Benoit':
+			# Benoit's method (ie log2 + check for special cases)
+			# see "Reliable Implementation of Linear Filters with Fixed-Point Arithmetic", Hilaire and Lopez, 2013
+			with workprec(2*wl):       # "enough bits"
+				# compute MSB
+				if fpf:
+					msb = fpf.msb
+				elif mpvalue > 0:
+					msb = int(floor(log(mpvalue, 2))) + (1 if signed else 0)
+				else:
+					msb = int(ceil(log(-mpvalue, 2)))
 
-			# compute MSB
-			if fpf:
-				msb = fpf.msb
-			elif mpvalue > 0:
-				msb = int(floor(log(mpvalue, 2))) + (1 if signed else 0)
-			else:
-				msb = int(ceil(log(-mpvalue, 2)))
+				# compute mantissa
+				self._mantissa = round(mpvalue * 2 ** (wl - msb - 1))
 
-			# compute mantissa
-			self._mantissa = long(round(mpvalue * 2 ** (wl - msb - 1)))
+				# check for particular case (when the quantized constant overpass the limit whereas the constant doesN'T)
+				if self._mantissa == 2 ** (wl - (1 if signed else 0)):
+					# like for the case 127.8 on 8 bits unsigned...
+					msb += 1
+					self._mantissa = 2 ** (wl - (2 if signed else 1))
+				elif self._mantissa == -2 ** (wl - 2):
+					# like -128.1 on 8 bits
+					msb -= 1
+					self._mantissa = -2 ** (wl - 1)
 
-			# check for particular case (when the quantized constant overpass the limit whereas the constant doesN'T)
-			if self._mantissa == 2 ** (wl - (1 if signed else 0)):
-				# like for the case 127.8 on 8 bits unsigned...
-				msb += 1
-				self._mantissa = 2 ** (wl - (2 if signed else 1))
-			elif self._mantissa == -2 ** (wl - 2):
-				# like -128.1 on 8 bits
-				msb -= 1
-				self._mantissa = -2 ** (wl - 1)
+		elif method == 'log':
+			# log2-based method (only based on logarithm base 2, with exact mp arithmetic)
+			# that takes care of two's complement asymmetry
+			with workprec(2*wl):        # enough ??
+				if mpvalue > 0:
+					corr = 1 - ldexp(1, -wl + 0 if signed else -1)
+					msb = int(ceil(log(mpvalue, 2) - log(corr, 2))) + 1 if signed else 0
+				else:
+					corr = 1 + ldexp(1, -wl)
+					msb = int(ceil(log(-mpvalue, 2) - log(corr, 2)))
+
+				self._mantissa = round(mpvalue * 2 ** (wl - msb - 1))
+
+		else:
+			# since the value is already transformed in floating-point (mantissa + exponent) with mpmath
+			# we can use that mantissa and exponent (be careful of the two's complement asymmetry, -2^p is ok with msb=p)
+			raise ValueError("Not yet implemented")
+
+
+
 
 		# check if the mantissa is valid when a fpf is given
 		if (not signed and not (0 <= self._mantissa < 2 ** wl) or (signed and not (-2 ** (wl - 1) <= self._mantissa < 2 ** (wl - 1)))):

@@ -150,9 +150,6 @@ class FPF(object):
 		return "%s(%d,%d)" % ('u'*(not self._signed), self._msb, self._lsb)
 
 		
-
-
-
 	def minmax(self):
 		"""Gives the interval a variable of this FPF may belong to.
 		Returns:
@@ -291,6 +288,9 @@ class FPF(object):
 		# Returns the full string
 		return st
 
+	def __eq__(self, other):
+		"""equality between two FPF"""
+		return self._msb == other.msb and self._lsb == other.lsb and self._signed == other.signed
 
 	# def shift(self, d):
 	# 	"""Right shift of d bits and decrease msb without changing beta."""
