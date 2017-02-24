@@ -73,7 +73,7 @@ class FPF(object):
 				raise ValueError("Wrong FPF: '%s' is a wrong format" % formatStr)
 
 		# check if wl/msb/lsb are coherent
-		if wl < (2 if signed else 1) and (wl is not None):
+		if (wl is not None) and wl < (2 if signed else 1):
 			raise ValueError("Wrong FPF: wordlength is incorrect (wl=%d)" % wl)
 		
 		# When wl, msb and lsb are all given, check if wl ==  msb+1-lsb
