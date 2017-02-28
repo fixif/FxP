@@ -15,9 +15,10 @@ __email__ = "thibault.hilaire@lip6.fr"
 __status__ = "Beta"
 
 from fipogen.FxP.FPF import FPF
+from typing import Union
+from mpmath import mpf, workprec, log, floor, ceil, ldexp, frexp, nint, fadd, fsub, mpmathify
 
-from mpmath import mpf, workprec, log, floor, ceil, ldexp, frexp, nint, extraprec, frac, fadd, fsub
-
+t_value = Union[mpf, float]
 
 class Constant(object):
 	"""Constant class to store a (non-null) constant in fixed-point arithmetic
@@ -34,7 +35,7 @@ class Constant(object):
 		"""Constructs a constant object, from a real value (something that mpmath can handle, so a float or a string).
 		 It could be build with wl bits (and signedness) OR (exclusive) with the given fpf
 		Parameters:
-		- value: (float, string or mpf) the real value of the constant
+		- value: (float or mpf) the real value of the constant
 		- wl: (positive integer) word-length
 		- signed: (boolean) True if signed fixed-point arithmetic is used, False if unsigned arithmetic
 		- fpf: (FPF) Fixed-Point Format
@@ -61,9 +62,9 @@ class Constant(object):
 		else:
 			self._name = str(value)
 
-		# store the exact value given and it's approximated value with 2*wl bits in mpmath
+		# store the exact value given (string, float or mpf) and it's mp math conversion (losslessly)
 		self._value = value
-		mpvalue = mpf(value, prec=2*wl)     # !TODO: wl+1 bits should be enough
+		mpvalue = mpmathify(value)
 
 		# check for non-sense values
 		if signed is False and mpvalue < 0:
@@ -77,6 +78,7 @@ class Constant(object):
 			# raise ValueError("zero cannot be stored in a Constant !!")
 			return
 
+		# different methods
 		if method == 'Benoit':
 			# Benoit's method (ie log2 + check for special cases)
 			# see "Reliable Implementation of Linear Filters with Fixed-Point Arithmetic", Hilaire and Lopez, 2013
@@ -90,7 +92,7 @@ class Constant(object):
 					msb = int(ceil(log(-mpvalue, 2)))
 
 				# compute mantissa
-				self._mantissa = int(floor(mpvalue * 2 ** (wl - msb - 1) + 0.5))
+				self._mantissa = int(nint(ldexp(mpvalue, (wl - msb - 1))))      # round-to-nearest even
 
 				# check for particular case (when the quantized constant overpass the limit whereas the constant doesN'T)
 				if self._mantissa == 2 ** (wl - (1 if signed else 0)):
@@ -106,62 +108,54 @@ class Constant(object):
 		elif method == 'log':
 			# log2-based method (only based on logarithm base 2, with exact mp arithmetic)
 			# that takes care of two's complement asymmetry
-			with workprec(20*wl):        # enough ??
+			with workprec(5*wl+1):        # enough ??
 				# set the msb
 				if mpvalue > 0:
-					corr = 1 - ldexp(1, -wl + (0 if signed else -1))
-					msb = int(floor(log(mpvalue, 2) - log(corr, 2))) + (1 if signed else 0)
+					corr = fsub(1, ldexp(1, -wl + (0 if signed else -1)), exact=True)
+					msb = int(floor(log(mpvalue/corr, 2))) + (1 if signed else 0)
 				else:
-					corr = 1 + ldexp(1, -wl)
-					msb = int(ceil(log(-mpvalue, 2) - log(corr, 2)))
+					corr = fadd(1, ldexp(1, -wl+1), exact=True)
+					msb = int(ceil(log(-mpvalue/corr, 2)))
 				# set the lsb and the mantissa
 				lsb = msb + 1 - wl
-				self._mantissa = int(floor(ldexp(mpvalue, -lsb) + 0.5))
+				self._mantissa = max(int(nint(ldexp(mpvalue, -lsb))), -2**(wl-1))             # round-to-nearest even
 
 
 		elif method == 'threshold':
 
-			with workprec(20*wl):       # enough?
+			with workprec(5*wl+1):       # enough?
 				# compute wmin
 				if mpvalue > 0:
-					fr = 2**frac(log(mpvalue, 2))
-					if fr < 1:
-						wmin = int(floor(-log(1 - fr, 2))) + (1 if signed else 0)
+					fr = mpvalue/2**floor(log(mpvalue, 2))       # fr = 2**frac(log(mpvalue, 2))
+					if fr<2:
+						wmin = int(floor(-log(2 - fr, 2))) + (2 if signed else 1)
 					else:
-						wmin = 0
+						# should not happen when fr is computed with infinite precision... here, it happens
+						wmin = mpf('+inf')
 				else:
-					fr = 2**frac(log(-mpvalue, 2)+1)
-					if fr > 1:
-						wmin = int(floor(-log(fr - 1, 2)) + 1)
-					else:
-						wmin = 0
+					fr = -mpvalue/2**ceil(log(-mpvalue, 2))
+					wmin = int(floor(-log(2*fr - 1, 2)) + 2)
 				# compute msb
 				if mpvalue > 0:
-					msb = int(floor(log(mpvalue, 2))) + (1 if signed else 0) + (1 if wl<wmin else 0)
+					msb = int(floor(log(mpvalue, 2))) + (1 if signed else 0) + (1 if wl < wmin else 0)
 				else:
-					msb = int(ceil(log(-mpvalue, 2))) + (1 if wl<wmin else 0)
+					msb = int(ceil(log(-mpvalue, 2))) - (1 if wl < wmin else 0)
 				# compute lsb and mantissa
 				lsb = msb + 1 - wl
-				self._mantissa = int(floor(ldexp(mpvalue, -lsb) + 0.5))
+				self._mantissa = max(int(nint(ldexp(mpvalue, -lsb))), -2**(wl-1))             # round-to-nearest even
 
 
 		else:
-
-			def roundNearestTieUp(x, prec):
-				t = mpf(x, prec=2*prec)
-				return mpf(ldexp( (-1 if t<0 else 1) * t.man*2+1, t.exp-1), prec=prec, rounding='f')
-
 			# since the value is already transformed in floating-point (mantissa + exponent) with mpmath
 			# we can use that mantissa and exponent (be careful of the two's complement asymmetry, -2^p is ok with msb=p)
 
 			with workprec(20*wl):
 
 				# floating-point with the right word-length
-				#fl = mpf(value, prec=wl - (1 if signed else 0))
-				fl = roundNearestTieUp(value, prec=wl - (1 if signed else 0))       # round to nearest tie up
+				fl = mpf(value, prec=wl - (1 if signed else 0))
 				# since mpmath do not have the integral significant (with MSB=1), we take the normalized significant
 				# and build the mantissa (M) and exponent (e)
-				m,ep = frexp(fl)
+				m, ep = frexp(fl)
 				M = ldexp(m, wl - (1 if signed else 0))
 				e = ep - wl + (1 if signed else 0)
 				# FxP mantissa, msb and lsb
@@ -169,16 +163,9 @@ class Constant(object):
 				lsb = e
 				msb = wl + lsb - 1
 				if self._mantissa == -2**(wl-2):
-					# recompute the mantissa with one extra bit
-					#fl = mpf(value, prec=wl)
-					fl = roundNearestTieUp(value, prec=wl)
-					m, _ = frexp(fl)
-					M = ldexp(m, wl)
-					# and adapt msb and lsb if we can
-					if M == -2**(wl-1):
-						lsb -= 1
-						msb -= 1
-						self._mantissa = int(M)
+					lsb -= 1
+					msb -= 1
+					self._mantissa = -2**(wl-1)
 
 
 
@@ -215,7 +202,8 @@ class Constant(object):
 		return ldexp(self._mantissa,  self._FPF.lsb)
 
 	def __str__(self):
-		return "<Constant(%s): %d*2**%d>" % (self._name, self._mantissa, self._FPF.lsb)
+		return "<Constant(%s): %d*2^%d>" % (self._name, self._mantissa, self._FPF.lsb)
 
 	def __repr__(self):
 		return str(self)
+
