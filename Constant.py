@@ -15,10 +15,8 @@ __email__ = "thibault.hilaire@lip6.fr"
 __status__ = "Beta"
 
 from fipogen.FxP.FPF import FPF
-from typing import Union
 from mpmath import mpf, workprec, log, floor, ceil, ldexp, frexp, nint, fadd, fsub, mpmathify
 
-t_value = Union[mpf, float]
 
 class Constant(object):
 	"""Constant class to store a (non-null) constant in fixed-point arithmetic
