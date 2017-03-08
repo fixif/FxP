@@ -18,7 +18,7 @@ from fipogen.FxP.FPF import FPF
 from mpmath import mpf, workprec, log, floor, ceil, ldexp, frexp, nint, fadd, fsub, mpmathify
 
 
-class Constant(object):
+class Constant:
 	"""Constant class to store a (non-null) constant in fixed-point arithmetic
 	
 	Attributes:
@@ -117,7 +117,6 @@ class Constant(object):
 				# set the lsb and the mantissa
 				lsb = msb + 1 - wl
 				self._mantissa = max(int(nint(ldexp(mpvalue, -lsb))), -2**(wl-1))             # round-to-nearest even
-
 
 		elif method == 'threshold':
 
