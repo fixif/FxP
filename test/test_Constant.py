@@ -188,6 +188,15 @@ def test_construct(method):
 	assert(c.mantissa == -65)
 
 
+	# wrong combination of arguments
+	with pytest.raises(ValueError):
+		Constant(value=12)
+	with pytest.raises(ValueError):
+		Constant(value=12, signed=True)
+	with pytest.raises(ValueError):
+		Constant(value=12, wl=5, fpf=FPF(8, 7, 0))
+
+
 	# construct with a given FPF
 	with pytest.raises(ValueError):
 		Constant(value=258.54, wl=8, fpf=FPF(8, 7, 0))

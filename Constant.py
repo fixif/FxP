@@ -46,14 +46,14 @@ class Constant:
 			ValueError if the parameters' values are not coherent
 		"""
 		# combination of arguments (wl AND signed) XOR fpf
-		if wl is None and signed is None and fpf is not None:
-			wl = fpf.wl
-			signed = fpf.signed
-		elif not(wl is not None and signed is not None and fpf is None):
-			raise ValueError("Constant: Bad combination of arguments")
+		if wl is not None and fpf is not None:
+			raise ValueError("Bad combination of arguments: cannot give a word-length and a FPF in the same time")
+		if wl is None and fpf is None:
+			raise ValueError("Bad combination of arguments: no wordlength or FPF given")
 		if wl < 2:
 			raise ValueError("Constant: The word-length should be at least equal to 2")
-
+		if signed is None and fpf is None:
+			signed = True
 		# store name
 		if name:
 			self._name = name
@@ -76,7 +76,26 @@ class Constant:
 			# raise ValueError("zero cannot be stored in a Constant !!")
 			return
 
-		# different methods
+		# conversion to a given FPF
+		if fpf is not None:
+			# do the conversion
+			self._FPF = fpf
+			self._mantissa = nint(ldexp(mpvalue, -fpf.lsb))
+			self._value = ldexp( self._mantissa, fpf.lsb)
+			# check if mantissa is ok
+			if signed:
+				if not -2**(fpf.wl-1) <= self._mantissa <= (2**(fpf.wl-1) - 1):
+					raise ValueError("The constant cannot be converted to the FPF %s", fpf)
+			else:
+				if not signed and not 0 <= self._mantissa <= (2**fpf.wl-1):
+					raise ValueError("The constant cannot be converted to the FPF %s", fpf)
+			# check underflow
+			#TODO: add option to allow underflow (sometimes useful)
+			if self._mantissa == 0:
+				raise ValueError("Underflow during the conversion of the constant!")
+			return
+
+		# Otherwise, perform the best w-bit conversion (with different methods)
 		if method == 'Benoit':
 			# Benoit's method (ie log2 + check for special cases)
 			# see "Reliable Implementation of Linear Filters with Fixed-Point Arithmetic", Hilaire and Lopez, 2013
@@ -106,7 +125,7 @@ class Constant:
 		elif method == 'log':
 			# log2-based method (only based on logarithm base 2, with exact mp arithmetic)
 			# that takes care of two's complement asymmetry
-			with workprec(5*wl+1):        # enough ??
+			with workprec(20*wl+1):        # enough ??
 				# set the msb
 				if mpvalue > 0:
 					corr = fsub(1, ldexp(1, -wl + (0 if signed else -1)), exact=True)
@@ -119,8 +138,8 @@ class Constant:
 				self._mantissa = max(int(nint(ldexp(mpvalue, -lsb))), -2**(wl-1))             # round-to-nearest even
 
 		elif method == 'threshold':
-
-			with workprec(5*wl+1):       # enough?
+			# compute the minimum wordlength where the constant is not a special case (boundaries)
+			with workprec(20*wl):       # enough?
 				# compute wmin
 				if mpvalue > 0:
 					fr = mpvalue/2**floor(log(mpvalue, 2))       # fr = 2**frac(log(mpvalue, 2))
@@ -143,9 +162,9 @@ class Constant:
 
 
 		else:
+			# default method
 			# since the value is already transformed in floating-point (mantissa + exponent) with mpmath
 			# we can use that mantissa and exponent (be careful of the two's complement asymmetry, -2^p is ok with msb=p)
-
 			with workprec(20*wl):
 
 				# floating-point with the right word-length
@@ -163,16 +182,6 @@ class Constant:
 					lsb -= 1
 					msb -= 1
 					self._mantissa = -2**(wl-1)
-
-
-
-
-		# # check if the mantissa is valid when a fpf is given
-		# if (not signed and not (0 <= self._mantissa < 2 ** wl) or (signed and not (-2 ** (wl - 1) <= self._mantissa < 2 ** (wl - 1)))):
-		# 	raise ValueError("given FPF cannot represent value")
-		# if self._mantissa == 0:
-		# 	# TODO: add an option to return a null constant rather raise an exception
-		# 	raise ValueError("The FPF is not enough to represent the constant without underflow !")
 
 		# associated FPF
 		self._FPF = FPF(wl=wl, msb=msb, signed=signed)
