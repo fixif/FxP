@@ -236,10 +236,10 @@ class FPF(object):
 		# One rectangle per bit
 		firstSigned = self._signed		# True if self is signed. Still True if we do not enter in the 1st loop (when integer part<0)
 		for m in range(-self._msb-1, min(0, -self._lsb)):
-			st += "\t\\draw (%f,%f) rectangle ++(1,1) [%s,%s] node[midway] {%s};\n" % (m+x_shift, y_origin, colors[0 if firstSigned else 1], pattern if -m > hatches[0]+1 else '', bits.next() or ('s' if firstSigned else ''))
+			st += "\t\\draw (%f,%f) rectangle ++(1,1) [%s,%s] node[midway] {%s};\n" % (m+x_shift, y_origin, colors[0 if firstSigned else 1], pattern if -m > hatches[0]+1 else '', next(bits) or ('s' if firstSigned else ''))
 			firstSigned = False
 		for l in range(-min(0, self._msb+1), -self._lsb):
-			st += "\t\\draw (%f,%f) rectangle ++(1,1) [%s,%s] node[midway] {%s};\n" % (l+x_shift, y_origin, colors[0 if firstSigned else 2], pattern if -l < hatches[1]+1 else '', bits.next() or ('s' if firstSigned else ''))
+			st += "\t\\draw (%f,%f) rectangle ++(1,1) [%s,%s] node[midway] {%s};\n" % (l+x_shift, y_origin, colors[0 if firstSigned else 2], pattern if -l < hatches[1]+1 else '', next(bits) or ('s' if firstSigned else ''))
 			firstSigned = False
 		# dashed rectangle for "missing bits" around the binary-point position
 		if drawMissing:
