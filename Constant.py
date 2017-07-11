@@ -50,7 +50,7 @@ class Constant:
 			raise ValueError("Bad combination of arguments: cannot give a word-length and a FPF in the same time")
 		if wl is None and fpf is None:
 			raise ValueError("Bad combination of arguments: no wordlength or FPF given")
-		if wl < 2:
+		if wl is not None and wl < 2:
 			raise ValueError("Constant: The word-length should be at least equal to 2")
 		if signed is None and fpf is None:
 			signed = True
