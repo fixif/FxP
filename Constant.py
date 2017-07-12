@@ -206,6 +206,18 @@ class Constant:
 	def approx(self):
 		"""Return the approximation of the constant with the chosen fixed-point format"""
 		return ldexp(self._mantissa,  self._FPF.lsb)
+	@property
+	def absError(self):
+		"""Returns the absolute error of the constant with the approximation"""
+		return float(self._value) - self.approx
+
+	@property
+	def realError(self):
+		"""Returns the real error of the constant with the approximation"""
+		if self._value != 0:
+			return (float(self._value) - self.approx) / (float(self._value))
+		else:
+			return 0
 
 	def __str__(self):
 		return "<Constant(%s): %d*2^%d>" % (self._name, self._mantissa, self._FPF.lsb)
