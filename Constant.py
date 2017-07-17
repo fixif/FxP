@@ -65,7 +65,7 @@ class Constant:
 		mpvalue = mpmathify(value)
 
 		# check for non-sense values
-		if signed is False and mpvalue < 0:
+		if signed is False and mpvalue < 0: #problem here! todo
 			raise ValueError("Unsigned FPF with negative constant !!")
 
 		# treat null constant
