@@ -62,7 +62,7 @@ class Constant:
 
 		# store the exact value given (string, float or mpf) and it's mp math conversion (losslessly)
 		self._value = value
-		mpvalue = mpmathify(value)
+		mpvalue = mpmathify(str(value))
 
 		# check for non-sense values
 		if signed is False and mpvalue < 0: #problem here! todo
