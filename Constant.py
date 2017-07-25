@@ -65,14 +65,18 @@ class Constant:
 		mpvalue = mpmathify(str(value))
 
 		# check for non-sense values
-		if signed is False and mpvalue < 0: #problem here! todo
+		if signed is False and mpvalue < 0:
 			raise ValueError("Unsigned FPF with negative constant !!")
 
 		# treat null constant
 		if mpvalue == 0:
 			self._mantissa = 0
 			self._value = 0
-			self._FPF = FPF(wl=wl, lsb=0)        # arbitrary choose lsb=0
+			if fpf is not None:
+				self._FPF = fpf
+			else:
+				self._FPF = FPF(wl=wl, lsb=0)  # arbitrary choose lsb=0
+
 			# raise ValueError("zero cannot be stored in a Constant !!")
 			return
 

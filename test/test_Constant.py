@@ -201,6 +201,33 @@ def test_construct(method):
 	with pytest.raises(ValueError):
 		Constant(value=258.54, wl=8, fpf=FPF(8, 7, 0))
 
+def testZero():
+	""" Check value zero. """
+	c = Constant(value=0, wl=8)
+	assert(c.FPF == FPF(msb=7, lsb=0))
+
+	c = Constant(value=0.0, wl=8)
+	assert (c.FPF == FPF(msb=7, lsb=0))
+
+	c = Constant(value="0", wl=8)
+	assert (c.FPF == FPF(msb=7, lsb=0))
+
+	c = Constant(value=mpf(0), wl=8)
+	assert (c.FPF == FPF(msb=7, lsb=0))
+
+	# with FPF:
+	f = FPF(msb=7, lsb=-1)
+	c = Constant(value=0, fpf=f)
+	assert (c.FPF == f)
+
+	c = Constant(value=0.0, fpf=f)
+	assert (c.FPF == f)
+
+	c = Constant(value="0", fpf=f)
+	assert (c.FPF == f)
+
+	c = Constant(value=mpf(0), fpf=f)
+	assert (c.FPF == f)
 
 
 def checkConstantInit(val, st, signed, wl, fpf):
