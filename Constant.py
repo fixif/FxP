@@ -213,13 +213,13 @@ class Constant:
 	@property
 	def absError(self):
 		"""Returns the absolute error of the constant with the approximation"""
-		return float(self._value) - self.approx
+		return mpf(self._value) - mpf(self.approx)
 
 	@property
 	def realError(self):
 		"""Returns the real error of the constant with the approximation"""
 		if self._value != 0:
-			return (float(self._value) - self.approx) / (float(self._value))
+			return (mpf(self._value) - mpf(self.approx)) / (mpf(self._value))
 		else:
 			return 0
 
