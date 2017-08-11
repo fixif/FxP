@@ -276,7 +276,7 @@ def test_alotof_constant_wlfixed(st_c):
 @mark.parametrize("wl_st_c", iterSomeSignedMidPoints(50), ids=lambda x: x[1])
 def test_midpoints(wl_st_c):
 
-	wl, st,c = wl_st_c
+	wl, st, c = wl_st_c
 
 	if c < 0:
 		checkConstantInit(c, st, signed=True, wl=wl, fpf=None)
