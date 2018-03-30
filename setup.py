@@ -2,19 +2,19 @@
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
-from os import path
 
-# Get the long description from the README file
-def readme():
-    with open('README.MD') as f:
-        return f.read()
+# Load long description for PyPi.
+from os.path import dirname, join, realpath
+cwd = dirname(realpath(__file__))
+with open(join(cwd, 'README.md')) as f:
+	long_description = f.read()
 
-
+# setup arguments
 setup(
 	name='FiXiF.FxP',
 	version='0.2',
 	description='FxP arithmetic library for the FiXiF project',
-	long_description=readme(),
+	long_description=long_description,
 	url='https://github.com/FiXiF/FxP',
 	author='T. Hilaire, B. Lopez',
 	author_email='thibault.hilaire@lip6.fr',
