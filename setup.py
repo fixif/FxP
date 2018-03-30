@@ -4,11 +4,12 @@
 from setuptools import setup, find_packages
 
 # Get the long description from the README file
-from io import open
-from os.path import abspath, join, dirname
-here = abspath(dirname(__file__))
-with open(join(here, 'README.md'), encoding='utf-8') as f:
+import os
+base_dir = os.path.dirname(__file__)
+with open(os.path.join(base_dir, "README.md")) as f:
 	long_description = f.read()
+
+
 
 # setup arguments
 setup(
