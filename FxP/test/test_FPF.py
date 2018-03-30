@@ -16,7 +16,7 @@ __email__ = "thibault.hilaire@lip6.fr"
 __status__ = "Beta"
 
 import pytest
-from fipogen.FxP import FPF
+from FxP import FPF
 
 
 def test_construct():

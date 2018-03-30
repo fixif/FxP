@@ -4,8 +4,8 @@
 The Variable class allows to represent variables in fixed-point arithmetic
 """
 
-from fipogen.FxP import FPF
-from fipogen.FxP import Constant
+from FxP import FPF
+from FxP import Constant
 from math import floor, log
 
 ########################################################################

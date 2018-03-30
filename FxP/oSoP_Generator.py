@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from copy import deepcopy
 from copy import copy
-from Adder import Adder
-from Multiplier import Multiplier
-from oSoP_class import oSoP
-from Variable import Variable
-from FPF import FPF
+from FxP import Adder
+from FxP import Multiplier
+from FxP.oSoP_class import oSoP
+from FxP.Variable import Variable
+from FxP import FPF
 from math import ceil, log, factorial, floor
 
 	
@@ -48,7 +48,7 @@ def oSoP_Generator2(multipliers, max_lsb, fpf_add, var_final, alfix = False, plu
 						if len(result)==1:
 							nb += 1
 							if nb%100000==0:
-								print nb
+								print( nb)
 							# add it to the list of possibilities
 							#we have an oSop
 							osop = oSoP(result[0], var_final)
@@ -194,7 +194,7 @@ def best_oSoP_gen(variables_name, variables, constants, constants_wordlength, mu
 		for L in oSoP_Generator2(multipliers, max_lsb, fpf_add, var_final, alfix = False,plus = False, formatting=formatting):
 			nb+=1
 			if nb%10000 == 0:
-				print nb
+				print( nb)
 				#LT.append(L)
 				#break
 			if L._Top._total_error.mean <= best_mean:
@@ -275,7 +275,7 @@ def best_oSoP_gen_from_dict(D):
 					M=Multiplier(constants[i], constants_wordlength[i], variables[i], variables[i]._name,\
 						multipliers_wordlength[i], i, RndOff=RndOff, lsb_final=lsb_final)
 				except:
-					print "Erreur création multiplieur"
+					print( "Erreur création multiplieur")
 			if M:
 				multipliers.append(M)
 		#multipliers = [Multiplier(constants[i], constants_wordlength[i], variables[i], variables[i]._name,\

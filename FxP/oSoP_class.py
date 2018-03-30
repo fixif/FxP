@@ -2,14 +2,14 @@
 from copy import deepcopy
 from copy import copy
 from string import Template
-from FPF import FPF
-from Error import Error
+from FxP import FPF
+from FxP import Error
 from math import log, ceil
-import cPickle, os.path, pickle, string
+#import cPickle, os.path, pickle, string
 
-from Constant import Constant
-from Adder import Adder
-from Multiplier import Multiplier
+from FxP import Constant
+from FxP import Adder
+from FxP import Multiplier
 
 
 class oSoP(object):
@@ -35,7 +35,7 @@ class oSoP(object):
 		else:
 			return 1
 
-	def insert_leaf(i, cur_m):
+	def insert_leaf(self,i, cur_m):
 		node = self._Top
 		for j in range(i):
 			node = node._operands[1]
@@ -80,7 +80,7 @@ class oSoP(object):
 				L = []
 				for line in fichier:
 					L.append(float(line)*2**-11)
-				print self._Top.Code_reel(L,0)[0],self._Top.Code_reel(L,0)[1]
+				print( self._Top.Code_reel(L,0)[0],self._Top.Code_reel(L,0)[1])
 			else:
 				return self._Top.Code_reel()
 		

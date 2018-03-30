@@ -22,8 +22,8 @@ from mpmath import ldexp, fadd, mpf, almosteq, fsub
 from random import choice, randint, random
 from itertools import chain
 
-from fipogen.FxP import FPF
-from fipogen.FxP import Constant
+from FxP import FPF
+from FxP import Constant
 
 
 def twoMinusXtwo(signp, p, signq, q, x):
