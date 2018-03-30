@@ -4,17 +4,17 @@
 from setuptools import setup, find_packages
 from os import path
 
-
 # Get the long description from the README file
-with open('README.md', encoding='utf-8') as f:
-	long_description = f.read()
+def readme():
+    with open('README.MD') as f:
+        return f.read()
 
 
 setup(
 	name='FiXiF.FxP',
 	version='0.2',
 	description='FxP arithmetic library for the FiXiF project',
-	long_description=long_description,
+	long_description=readme(),
 	url='https://github.com/FiXiF/FxP',
 	author='T. Hilaire, B. Lopez',
 	author_email='thibault.hilaire@lip6.fr',
