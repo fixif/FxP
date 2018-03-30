@@ -3,10 +3,11 @@
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 
-# Load long description for PyPi.
-from os.path import dirname, join, realpath
-cwd = dirname(realpath(__file__))
-with open(join(cwd, 'README.md')) as f:
+# Get the long description from the README file
+from io import open
+from os.path import abspath, join, dirname
+here = abspath(dirname(__file__))
+with open(join(here, 'README.md'), encoding='utf-8') as f:
 	long_description = f.read()
 
 # setup arguments
