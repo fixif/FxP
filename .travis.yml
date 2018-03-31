@@ -15,7 +15,10 @@ matrix:
 
 install: pip install tox
 
-script: tox
+script:
+    - tox
+    - coverage run --source FxP -m py.test
+    - coverage report -m
 
 notifications:
 email: false
