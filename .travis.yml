@@ -28,6 +28,6 @@ notifications:
 email: false
 
 after_success:
-    - if [[ $ENV == python=3.6* ]]; then
+    - if [[ $TOXENV == py36 ]]; then
           coveralls;
       fi
