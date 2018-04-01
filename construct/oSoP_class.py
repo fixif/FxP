@@ -1,15 +1,9 @@
 # -*- coding: utf-8 -*-
-from copy import deepcopy
-from copy import copy
 from string import Template
-from FxP import FPF
-from FxP import Error
-from math import log, ceil
-#import cPickle, os.path, pickle, string
+from construct import Error, Multiplier, Adder
 
-from FxP import Constant
-from FxP import Adder
-from FxP import Multiplier
+
+#import cPickle, os.path, pickle, string
 
 
 class oSoP(object):
@@ -19,7 +13,7 @@ class oSoP(object):
 	def __init__(self, top, var_final=None):
 		"""Constructeur"""
 		self._Top = top
-		if isinstance(top,Multiplier):
+		if isinstance(top, Multiplier):
 			self._var_final = top._var_result
 		else:
 			self._var_final = var_final

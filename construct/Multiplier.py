@@ -1,18 +1,10 @@
 # -*- coding: utf-8 -*-
-from copy import deepcopy
-from copy import copy
-from string import Template
-from FxP import FPF
-from FxP import Error
-from math import log, ceil, floor
-import os.path
+from construct import Error, Adder
 import string
 
-from FxP import Adder
 from FxP import Constant
-from FxP import Variable
-	
-	
+
+
 class Multiplier(object):
 	"""Classe pour les multiplieurs"""
 	
@@ -100,7 +92,7 @@ class Multiplier(object):
 
 	def add(self,other, options=None):
 		"""Merge two Multipliers with an Adder"""
-		if isinstance(other,Adder):
+		if isinstance(other, Adder):
 			print( "Grosse panique")
 			pass
 		#addition d'un multiplier et d'un multiplier

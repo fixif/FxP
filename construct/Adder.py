@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
-from copy import deepcopy
-from copy import copy
-from string import Template
-from FxP import FPF
-from FxP import Error
+from construct import Error
+
+
 #from Variable import Variable
-from math import log, ceil
-import os.path
-import string
 
 class Adder(object):
 	"""Class for adders with intervals"""

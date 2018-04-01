@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 from copy import deepcopy
 from copy import copy
-from FxP import Adder
-from FxP import Multiplier
-from FxP.oSoP_class import oSoP
-from FxP.Variable import Variable
+from construct import Multiplier, Adder
+from construct.oSoP_class import oSoP
+from construct.Variable import Variable
 from FxP import FPF
-from math import ceil, log, factorial, floor
+from math import ceil, log, floor
 
 	
 	
@@ -272,7 +271,7 @@ def best_oSoP_gen_from_dict(D):
 			M=None
 			if constants_wordlength[i] >0:
 				try:
-					M=Multiplier(constants[i], constants_wordlength[i], variables[i], variables[i]._name,\
+					M= Multiplier(constants[i], constants_wordlength[i], variables[i], variables[i]._name,\
 						multipliers_wordlength[i], i, RndOff=RndOff, lsb_final=lsb_final)
 				except:
 					print( "Erreur création multiplieur")
