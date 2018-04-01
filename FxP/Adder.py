@@ -2,8 +2,8 @@
 from copy import deepcopy
 from copy import copy
 from string import Template
-from FPF import FPF
-from Error import Error
+from FxP import FPF
+from FxP import Error
 #from Variable import Variable
 from math import log, ceil
 import os.path

@@ -87,9 +87,9 @@ def contraintes(fichier):
 
 
 	# Sélection de b :
-	print "Voici les msb des variables de sortie :"
-	print m_var_out[-ny:]
-	print "\nChoisissez les valeurs pour l'erreur"
+	print("Voici les msb des variables de sortie :")
+	print( m_var_out[-ny:])
+	print("\nChoisissez les valeurs pour l'erreur")
 	b=[]
 	for i in range(ny):
 		x=float(raw_input("valeur de b_%d:\t"%(i)))
@@ -97,7 +97,7 @@ def contraintes(fichier):
 			b.append(float(2**x))
 		else:
 			b.append(x)
-	print b
+	print( b)
 	
 
 	# Calcul du delta
@@ -114,7 +114,7 @@ def contraintes(fichier):
 	for i in range(nt + nx + ny):
 		for j in range(nt + nx + nu):
 			if Z[i][j] != 0:
-				print "%s - %s \geq %d\\\\"%(wZ[i][j], var_out[i], m_var_in[j] + mZ[i][j] - m_var_out[i]+ d[i]+1)
+				print( "%s - %s \geq %d\\\\"%(wZ[i][j], var_out[i], m_var_in[j] + mZ[i][j] - m_var_out[i]+ d[i]+1))
 
 
 	if ny == 1 :
@@ -147,8 +147,8 @@ def contraintes(fichier):
 					bA[i] += float(A2[i][j])/2**(ceil(log(float(D2[i][j])/b[i],2)))
 					A2[i][j] = 0
 
-	print bA
-	print bD
+	print( bA)
+	print( bD)
 
 	for i in range(ny):
 		for j in range(nt+nx+ny):
@@ -160,7 +160,7 @@ def contraintes(fichier):
 			D[i][j] = float(D[i][j])*2**m_var_out[j] / b[i]
 
 
-	print "\n\nContraintes sans majoration\n"
+	print("\n\nContraintes sans majoration\n")
 
 	for i in range(ny):
 		cA = ""
@@ -176,11 +176,11 @@ def contraintes(fichier):
 					cD += " + "
 		cA += "\leq 1\\\\"
 		cD += "\leq 1\\\\"
-		print cA+"\n"
-		print cD+"\n"
+		print (cA+"\n")
+		print (cD+"\n")
 
 
-	print "\n\nContraintes avec majoration\n"
+	print ("\n\nContraintes avec majoration\n")
 
 	for i in range(ny):
 		cA = ""
@@ -196,8 +196,8 @@ def contraintes(fichier):
 					cD += " + "
 		cA += "\leq 1\\\\"
 		cD += "\leq 1\\\\"
-		print cA+"\n"
-		print cD+"\n"
+		print (cA+"\n")
+		print (cD+"\n")
 
 
 def contraintes_AMPL(fichier):
@@ -289,7 +289,7 @@ def contraintes_AMPL(fichier):
 		D = [[abs(dce[i][j] - wcpge[i][j]) for j in range(nt+nx+ny)] for i in range(ny)]
 	
 
-	print m_var_out
+	print (m_var_out)
 	for i in range(ny):
 		for j in range(nt+nx+ny):
 			# sans majoration
@@ -429,7 +429,7 @@ def contraintes_AMPL(fichier):
 	# 	txt_i += ";\n\n"
 	# 	k += 1
 
-	print txt_i
+	print (txt_i)
 
 
 

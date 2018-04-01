@@ -18,6 +18,8 @@ __status__ = "Beta"
 import pytest
 from FxP import FPF
 
+import coveralls
+
 
 def test_construct():
 	"""Unit test for the FPF constructor"""
