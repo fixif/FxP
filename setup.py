@@ -33,7 +33,7 @@ setup(
 	],
 	keywords='fixed-point arithmetic',
 	packages=find_packages(exclude=['tests']),
-	install_requires=['mpmath', 'pytest', 'coveralls'],
+	install_requires=['mpmath', 'pytest', 'pytest-cov', 'coveralls'],
 	project_urls={
 		'Bug Reports': 'https://github.com/FiXiF/FxP/issues',
 		'Source': 'https://github.com/FiXiF/FxP/',
