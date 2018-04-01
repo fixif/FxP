@@ -160,6 +160,9 @@ def test_construct(method):
 	with pytest.raises(ValueError):
 		Constant(value=-12, wl=12, signed=False, method=method)
 
+	with pytest.raises(ValueError):
+		Constant(value=42, wl=1)
+
 	# particular cases
 	c = Constant(value=127.78, wl=8, signed=False, method=method)
 	assert(c.FPF.wml() == (8, 7, 0))
@@ -187,7 +190,6 @@ def test_construct(method):
 	assert(c.FPF.wml() == (8, 8, 1))
 	assert(c.mantissa == -65)
 
-
 	# wrong combination of arguments
 	with pytest.raises(ValueError):
 		Constant(value=12)
@@ -196,10 +198,17 @@ def test_construct(method):
 	with pytest.raises(ValueError):
 		Constant(value=12, wl=5, fpf=FPF(8, 7, 0))
 
-
 	# construct with a given FPF
 	with pytest.raises(ValueError):
 		Constant(value=258.54, wl=8, fpf=FPF(8, 7, 0))
+	c = Constant(value=127.1, fpf=FPF(8, 7, 0))
+	assert(c.FPF.wml() == (8, 7, 0))
+	with pytest.raises(ValueError):
+		Constant(value=132, fpf=FPF(8, 7, 0, signed=True))
+	with pytest.raises(ValueError):
+		Constant(value=300,  fpf=FPF(8, 7, 0, signed=False))
+	with pytest.raises(ValueError):
+		Constant(value=0.123, fpf=FPF(8, 7, 0))
 
 def testZero():
 	""" Check value zero. """
@@ -259,7 +268,7 @@ def checkConstantInit(val, st, signed, wl, fpf):
 
 
 
-@mark.parametrize("st_c", chain(iterSomeParticularValues(), iterSomeNumbers(500)), ids=lambda x: x[0])
+@mark.parametrize("st_c", chain(iterSomeParticularValues(), iterSomeNumbers(50)), ids=lambda x: x[0])
 def test_alotof_constant_wlfixed(st_c):
 
 	st,c = st_c

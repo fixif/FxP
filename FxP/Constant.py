@@ -52,8 +52,12 @@ class Constant:
 			raise ValueError("Bad combination of arguments: no wordlength or FPF given")
 		if wl is not None and wl < 2:
 			raise ValueError("Constant: The word-length should be at least equal to 2")
-		if signed is None and fpf is None:
-			signed = True
+		if signed is None:
+			if fpf is None:
+				signed = True
+			else:
+				signed = fpf.signed
+
 		# store name
 		if name:
 			self._name = name
@@ -88,10 +92,10 @@ class Constant:
 			self._value = ldexp( self._mantissa, fpf.lsb)
 			# check if mantissa is ok
 			if signed:
-				if not -2**(fpf.wl-1) <= self._mantissa <= (2**(fpf.wl-1) - 1):
+				if not (-2**(fpf.wl-1) <= self._mantissa <= (2**(fpf.wl-1) - 1)):
 					raise ValueError("The constant cannot be converted to the FPF %s", fpf)
 			else:
-				if not signed and not 0 <= self._mantissa <= (2**fpf.wl-1):
+				if  not (0 <= self._mantissa <= (2**fpf.wl-1)):
 					raise ValueError("The constant cannot be converted to the FPF %s", fpf)
 			# check underflow
 			#TODO: add option to allow underflow (sometimes useful)
