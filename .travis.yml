@@ -18,6 +18,8 @@ install: pip install tox
 script:
     - tox
 
+sudo: required
+
 notifications:
 email: false
 
