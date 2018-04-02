@@ -17,6 +17,8 @@ __status__ = "Beta"
 
 import pytest
 from FxP import FPF
+from random import randint, choice
+from pytest import mark
 
 
 def test_construct():
@@ -86,3 +88,24 @@ def test_construct():
 # 	assert(F.approx(25.001) == 25)
 # 	assert(F.approx(25.26789) == 25)
 
+
+def iterSomeFPF(N):
+	for _ in range(N):
+		w = randint(2,30)
+		m = randint(-30,30)
+		s = choice([True,False])
+		yield FPF(wl=w, msb=m, signed=s)
+
+
+
+#y_origin=0, colors=None,  binary_point=False, label='no', notation='mlsb', numeric=False, intfrac=False, power2=False, hatches=None, bits=None, x_shift=0, drawMissing=False, **_):
+@mark.parametrize("y_origin",[randint(-5,5) for _ in range(3)])
+@mark.parametrize("binary_point", [True, False])
+@mark.parametrize("label", ['left', 'right', 'above', 'below', 'no'])
+@mark.parametrize("notation", ["mlsb", "ifwl"])
+@mark.parametrize("numeric", [True,False])
+@mark.parametrize("intfrac", [True,False])
+@mark.parametrize("power2", [True,False])
+@mark.parametrize("fpf", iterSomeFPF(50) )
+def test_LaTeX(fpf, y_origin, binary_point, label, notation, numeric, intfrac, power2):
+	fpf.LaTeX(y_origin=y_origin, binary_point=binary_point, label=label, notation=notation, numeric=numeric, intfrac=intfrac, power2=power2)
