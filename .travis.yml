@@ -1,6 +1,6 @@
-sudo: required
-dist: xenial
-#language: python
+#sudo: required
+#dist: xenial
+language: python
 
 matrix:
   include:
