@@ -1,5 +1,6 @@
+sudo: required
 dist: xenial
-language: python
+#language: python
 
 matrix:
   include:
@@ -26,8 +27,6 @@ install: pip install tox
 
 script:
     - tox
-
-sudo: required
 
 notifications:
 email: false
