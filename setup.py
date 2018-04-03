@@ -15,11 +15,11 @@ with codecs.open('README.rst', encoding='utf-8') as f:
 # setup arguments
 setup(
 	name='FiXiF.FxP',
-	namespace='FiXiF',
+	#namespace='FiXiF',
 	version='0.2',
 	description='FxP arithmetic library for the FiXiF project',
 	long_description=long_description,
-	url='https://github.com/FiXiF/FxP',
+	url='https://github.com/FiXiF/FiXiF.FxP',
 	author='T. Hilaire, B. Lopez',
 	author_email='thibault.hilaire@lip6.fr',
 	classifiers=[
