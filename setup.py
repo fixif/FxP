@@ -14,12 +14,12 @@ with codecs.open('README.rst', encoding='utf-8') as f:
 
 # setup arguments
 setup(
-	name='FiXiF.FxP',
-	#namespace='FiXiF',
+	name='fixif.FxP',
+	#namespace='fixif',
 	version='0.2',
 	description='FxP arithmetic library for the FiXiF project',
 	long_description=long_description,
-	url='https://github.com/FiXiF/FiXiF.FxP',
+	url='https://github.com/FiXiF/fixif.FxP',
 	author='T. Hilaire, B. Lopez',
 	author_email='thibault.hilaire@lip6.fr',
 	classifiers=[
@@ -36,7 +36,7 @@ setup(
 	packages=find_packages(exclude=['tests']),
 	install_requires=['mpmath', 'pytest', 'pytest-cov', 'coveralls'],
 	project_urls={
-		'Bug Reports': 'https://github.com/FiXiF/FiXiF.FxP/issues',
-		'Source': 'https://github.com/FiXiF/FiXiF.FxP/',
+		'Bug Reports': 'https://github.com/FiXiF/fixif.FxP/issues',
+		'Source': 'https://github.com/FiXiF/fixif.FxP/',
 	},
 )
