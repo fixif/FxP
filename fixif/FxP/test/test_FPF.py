@@ -105,9 +105,10 @@ def test_LaTeX(fpf):
 	"""Test the LaTeX (tikz) code for a FPF"""
 	# randomly choose the parameter (do not want to exploit all the possibilities)
 	y_origin = randint(-5,5)
+	colors = choice([None, ('red!40','blue!30','green!40'), ('black!60', 'black!30', 'white')])
 	binary_point = choice([True, False])
 	label = choice( ['left', 'right', 'above', 'below', 'no'])
-	notation = ["mlsb", "ifwl"]
+	notation = choice(["mlsb", "ifwl"])
 	numeric = choice([True, False])
 	intfrac = choice([True, False])
 	power2 = choice([True, False])
@@ -117,7 +118,7 @@ def test_LaTeX(fpf):
 	# create a temp file
 	with NamedTemporaryFile(mode='w+', dir=tmp) as f:
 		# write minimal LaTeX code in it
-		latex = fpf.LaTeX(y_origin=y_origin, binary_point=binary_point, label=label, notation=notation, numeric=numeric, intfrac=intfrac, power2=power2, drawMissing=drawMissing)
+		latex = fpf.LaTeX(y_origin=y_origin, colors=colors, binary_point=binary_point, label=label, notation=notation, numeric=numeric, intfrac=intfrac, power2=power2, drawMissing=drawMissing)
 		f.write("""
 \\documentclass[class=minimal,border=0mm]{standalone}
 \\usepackage{tikz}
@@ -145,3 +146,5 @@ def test_LaTeX(fpf):
 def test_notation(fpf):
 	assert(FPF(formatStr=fpf.Qnotation()) == fpf)
 	assert(FPF(formatStr=fpf.ParenthesisNotation()) == fpf)
+	assert(FPF(formatStr=repr(fpf)) == fpf)
+	str(fpf)

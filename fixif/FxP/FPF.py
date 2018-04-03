@@ -132,11 +132,11 @@ class FPF(object):
 		return self._wl, self._msb, self._lsb
 
 
-	def __str__(self):
+	def __repr__(self):
 		return self.ParenthesisNotation()
 
 		
-	def __repr__(self):
+	def __str__(self):
 		return "FPF( wl=%d, msb=%d, lsb=%d, signed=%s)" % (self._wl, self._msb, self._lsb, self._signed)
 
 
