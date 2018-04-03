@@ -16,7 +16,7 @@ __email__ = "thibault.hilaire@lip6.fr"
 __status__ = "Beta"
 
 import pytest
-from FxP import FPF
+from FiXiF.FxP import FPF
 from random import randint, choice
 from pytest import mark
 from tempfile import NamedTemporaryFile, mkdtemp
