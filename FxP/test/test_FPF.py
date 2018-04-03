@@ -19,6 +19,9 @@ import pytest
 from FxP import FPF
 from random import randint, choice
 from pytest import mark
+from tempfile import NamedTemporaryFile
+from subprocess import Popen, PIPE
+
 
 
 def test_construct():
@@ -106,6 +109,32 @@ def iterSomeFPF(N):
 @mark.parametrize("numeric", [True,False])
 @mark.parametrize("intfrac", [True,False])
 @mark.parametrize("power2", [True,False])
-@mark.parametrize("fpf", iterSomeFPF(50) )
-def test_LaTeX(fpf, y_origin, binary_point, label, notation, numeric, intfrac, power2):
-	fpf.LaTeX(y_origin=y_origin, binary_point=binary_point, label=label, notation=notation, numeric=numeric, intfrac=intfrac, power2=power2)
+@mark.parametrize("drawMissing", [True, False])
+@mark.parametrize("fpf", iterSomeFPF(50))
+def test_LaTeX(fpf, y_origin, binary_point, label, notation, numeric, intfrac, power2, drawMissing):
+	"""Test the LaTeX (tikz) code for a FPF"""
+	# create a temp file
+	with NamedTemporaryFile(mode='w+') as f:
+		# write minimal LaTeX code in it
+		latex = fpf.LaTeX(y_origin=y_origin, binary_point=binary_point, label=label, notation=notation, numeric=numeric, intfrac=intfrac, power2=power2, drawMissing=drawMissing)
+		f.write("""
+\\documentclass[class=minimal,border=0mm]{standalone}
+\\usepackage{tikz}
+\\usetikzlibrary{backgrounds}
+\\usetikzlibrary{patterns}
+\\begin{document}
+\\begin{tikzpicture}[show background rectangle, background rectangle/.style={fill=white}]
+	\\tikzstyle{fractional}=[fill=red!40]
+	\\tikzstyle{integer}=[fill=blue!15]
+	\\tikzstyle{sign}=[fill=purple!15]
+%s
+\\end{tikzpicture}
+\\end{document}"""%latex)
+		f.flush()
+		# run pdflatex on it
+		proc = Popen( "pdflatex "+ f.name, stdout=PIPE, stderr=PIPE, shell=True)
+		# check if the output doesn't start with a '!' (a way to detect LaTeX error in the output of pdflatex)
+		line='non-empty'
+		while line:
+			line = proc.stdout.readline().decode('utf-8')
+			assert(not line.startswith('!'))
