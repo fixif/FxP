@@ -19,7 +19,7 @@ import pytest
 from FxP import FPF
 from random import randint, choice
 from pytest import mark
-from tempfile import NamedTemporaryFile
+from tempfile import NamedTemporaryFile, mkdtemp
 from subprocess import Popen, PIPE
 
 
@@ -100,21 +100,22 @@ def iterSomeFPF(N):
 		yield FPF(wl=w, msb=m, signed=s)
 
 
-
-#y_origin=0, colors=None,  binary_point=False, label='no', notation='mlsb', numeric=False, intfrac=False, power2=False, hatches=None, bits=None, x_shift=0, drawMissing=False, **_):
-@mark.parametrize("y_origin",[randint(-5,5) for _ in range(3)])
-@mark.parametrize("binary_point", [True, False])
-@mark.parametrize("label", ['left', 'right', 'above', 'below', 'no'])
-@mark.parametrize("notation", ["mlsb", "ifwl"])
-@mark.parametrize("numeric", [True,False])
-@mark.parametrize("intfrac", [True,False])
-@mark.parametrize("power2", [True,False])
-@mark.parametrize("drawMissing", [True, False])
-@mark.parametrize("fpf", iterSomeFPF(50))
-def test_LaTeX(fpf, y_origin, binary_point, label, notation, numeric, intfrac, power2, drawMissing):
+@mark.parametrize("fpf", iterSomeFPF(100))
+def test_LaTeX(fpf):
 	"""Test the LaTeX (tikz) code for a FPF"""
+	# randomly choose the parameter (do not want to exploit all the possibilities)
+	y_origin = randint(-5,5)
+	binary_point = choice([True, False])
+	label = choice( ['left', 'right', 'above', 'below', 'no'])
+	notation = ["mlsb", "ifwl"]
+	numeric = choice([True, False])
+	intfrac = choice([True, False])
+	power2 = choice([True, False])
+	drawMissing = choice([True, False])
+	# go to a temp directory
+	tmp = mkdtemp()
 	# create a temp file
-	with NamedTemporaryFile(mode='w+') as f:
+	with NamedTemporaryFile(mode='w+', dir=tmp) as f:
 		# write minimal LaTeX code in it
 		latex = fpf.LaTeX(y_origin=y_origin, binary_point=binary_point, label=label, notation=notation, numeric=numeric, intfrac=intfrac, power2=power2, drawMissing=drawMissing)
 		f.write("""
@@ -132,7 +133,7 @@ def test_LaTeX(fpf, y_origin, binary_point, label, notation, numeric, intfrac, p
 \\end{document}"""%latex)
 		f.flush()
 		# run pdflatex on it
-		proc = Popen( "pdflatex "+ f.name, stdout=PIPE, stderr=PIPE, shell=True)
+		proc = Popen( "cd " + tmp + "&& pdflatex "+ f.name, stdout=PIPE, stderr=PIPE, shell=True)
 		# check if the output doesn't start with a '!' (a way to detect LaTeX error in the output of pdflatex)
 		line='non-empty'
 		while line:
