@@ -139,3 +139,9 @@ def test_LaTeX(fpf):
 		while line:
 			line = proc.stdout.readline().decode('utf-8')
 			assert(not line.startswith('!'))
+
+
+@mark.parametrize("fpf", iterSomeFPF(1000))
+def test_notation(fpf):
+	assert(FPF(formatStr=fpf.Qnotation()) == fpf)
+	assert(FPF(formatStr=fpf.ParenthesisNotation()) == fpf)
