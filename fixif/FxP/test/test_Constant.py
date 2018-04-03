@@ -190,6 +190,7 @@ def test_construct(method):
 	assert(c.FPF.wml() == (8, 8, 1))
 	assert(c.mantissa == -65)
 
+
 	# wrong combination of arguments
 	with pytest.raises(ValueError):
 		Constant(value=12)
@@ -250,6 +251,10 @@ def checkConstantInit(val, st, signed, wl, fpf):
 			assert((-2 ** (wl - 1) <= cst.mantissa < -2 ** (wl - 2)) or (2 ** (wl-2) <= cst.mantissa < 2 ** (wl-1)))
 		else:
 			assert(2 ** (wl-1) <= cst.mantissa < 2 ** wl)
+		# check str and value method
+		str(c)
+		repr(c)
+		assert(cst.value == val)
 
 	# compare the three constants (compare their FPF, mantissa and approx)
 	cst = c[0]
@@ -261,9 +266,14 @@ def checkConstantInit(val, st, signed, wl, fpf):
 	# check if |c - c_FxP| < 2 ^(l-1)
 	for cst in c:
 		if cst.mantissa == -2**(cst.FPF.wl-1):
-			assert( almosteq(cst.approx, val, abs_eps=ldexp(1, cst.FPF.lsb) ))
+			assert(almosteq(cst.approx, val, abs_eps=ldexp(1, cst.FPF.lsb)))
 		else:
 			assert (almosteq(cst.approx, val, abs_eps=ldexp(1, cst.FPF.lsb - 1)))
+
+	# check relative and absolute error
+	cst = c[0]
+	#assert(cst.absError < ldexp(1, cst.FPF.lsb))    #TODO: check these inequalities
+	#assert(cst.relError < ldexp(1, -cst.FPF.wl))
 
 
 

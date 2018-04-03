@@ -220,8 +220,8 @@ class Constant:
 		return mpf(self._value) - mpf(self.approx)
 
 	@property
-	def realError(self):
-		"""Returns the real error of the constant with the approximation"""
+	def relError(self):
+		"""Returns the relative error of the constant with the approximation"""
 		if self._value != 0:
 			return (mpf(self._value) - mpf(self.approx)) / (mpf(self._value))
 		else:
