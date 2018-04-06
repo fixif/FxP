@@ -14,6 +14,10 @@ matrix:
       env: TOXENV=py36
     - python: 3.7-dev
       env: TOXENV=py37
+    - python: pypy2.7
+      env: TOXENV=pypy27
+    - python: pypy3.6
+      env: TOXENV=pypy36
 
 before_install:
 # install LaTeX stuff
