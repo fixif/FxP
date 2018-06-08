@@ -19,7 +19,7 @@ setup(
 	version='0.2',
 	description='FxP arithmetic library for the FiXiF project',
 	long_description=long_description,
-	url='https://github.com/FiXiF/fixif.FxP',
+	url='https://github.com/FiXiF/FxP',
 	author='T. Hilaire, B. Lopez',
 	author_email='thibault.hilaire@lip6.fr',
 	classifiers=[
@@ -36,7 +36,7 @@ setup(
 	packages=find_packages(exclude=['tests']),
 	install_requires=['mpmath', 'pytest', 'pytest-cov', 'coveralls'],
 	project_urls={
-		'Bug Reports': 'https://github.com/FiXiF/fixif.FxP/issues',
-		'Source': 'https://github.com/FiXiF/fixif.FxP/',
+		'Bug Reports': 'https://github.com/FiXiF/FxP/issues',
+		'Source': 'https://github.com/FiXiF/FxP/',
 	},
 )
