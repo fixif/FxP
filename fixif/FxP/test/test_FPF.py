@@ -141,6 +141,9 @@ def test_LaTeX(fpf):
 			line = proc.stdout.readline().decode('utf-8')
 			assert(not line.startswith('!'))
 
+		#TODO: do it with latex package (as it is done in fixif itself, see fixif.SIF.R_algorithm)
+
+
 
 @mark.parametrize("fpf", iterSomeFPF(1000))
 def test_notation(fpf):
