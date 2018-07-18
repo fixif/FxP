@@ -102,5 +102,4 @@ ENV/
 
 # PyCharm
 .idea/workspace.xml
-.idea/FxP.iml
 .pytest_cache/
